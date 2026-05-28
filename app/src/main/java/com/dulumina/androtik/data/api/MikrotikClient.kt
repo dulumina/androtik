@@ -1,6 +1,7 @@
 package com.dulumina.androtik.data.api
 
 import com.dulumina.androtik.domain.model.IpAddress
+import com.dulumina.androtik.domain.model.DhcpLease
 import com.dulumina.androtik.domain.model.IpRoute
 import com.dulumina.androtik.domain.model.NetworkInterface
 import com.dulumina.androtik.domain.model.RouterInfo
@@ -104,6 +105,38 @@ class MikrotikClient(
                 )
             }
         }
+    }
+
+    suspend fun getDhcpLeases(): Result<List<DhcpLease>> {
+        return connection.executeCommand("/ip/dhcp-server/lease/print").map { rows ->
+            rows.map { row ->
+                DhcpLease(
+                    id = row[".id"] ?: "",
+                    address = row["address"] ?: "",
+                    macAddress = row["mac-address"] ?: "",
+                    hostName = row["host-name"] ?: "",
+                    clientId = row["client-id"] ?: "",
+                    server = row["server"] ?: "",
+                    status = row["status"] ?: "",
+                    expiresAfter = row["expires-after"] ?: "",
+                    lastSeen = row["last-seen"] ?: "",
+                    active = row["active"] == "true",
+                    dynamic = row["dynamic"] == "true",
+                    blocked = row["blocked"] == "true",
+                    comment = row["comment"] ?: "",
+                )
+            }
+        }
+    }
+
+    suspend fun addDhcpLease(address: String, macAddress: String, comment: String = ""): Result<Unit> {
+        val args = mutableMapOf("address" to address, "mac-address" to macAddress)
+        if (comment.isNotBlank()) args["comment"] = comment
+        return connection.executeCommand("/ip/dhcp-server/lease/add", args).map { }
+    }
+
+    suspend fun removeDhcpLease(id: String): Result<Unit> {
+        return connection.executeCommand("/ip/dhcp-server/lease/remove", mapOf(".id" to id)).map { }
     }
 
     suspend fun execute(command: String, args: Map<String, String> = emptyMap()): Result<List<Map<String, String>>> {
