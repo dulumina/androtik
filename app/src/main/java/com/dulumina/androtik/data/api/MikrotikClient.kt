@@ -1,5 +1,6 @@
 package com.dulumina.androtik.data.api
 
+import com.dulumina.androtik.domain.model.IpAddress
 import com.dulumina.androtik.domain.model.NetworkInterface
 import com.dulumina.androtik.domain.model.RouterInfo
 
@@ -57,6 +58,32 @@ class MikrotikClient(
                 )
             }
         }
+    }
+
+    suspend fun getIpAddresses(): Result<List<IpAddress>> {
+        return connection.executeCommand("/ip/address/print").map { rows ->
+            rows.map { row ->
+                IpAddress(
+                    id = row[".id"] ?: "",
+                    address = row["address"] ?: "",
+                    network = row["network"] ?: "",
+                    interfaceName = row["interface"] ?: "",
+                    disabled = row["disabled"] == "true",
+                    dynamic = row["dynamic"] == "true",
+                    comment = row["comment"] ?: "",
+                )
+            }
+        }
+    }
+
+    suspend fun addIpAddress(address: String, interfaceName: String, comment: String = ""): Result<Unit> {
+        val args = mutableMapOf("address" to address, "interface" to interfaceName)
+        if (comment.isNotBlank()) args["comment"] = comment
+        return connection.executeCommand("/ip/address/add", args).map { }
+    }
+
+    suspend fun removeIpAddress(id: String): Result<Unit> {
+        return connection.executeCommand("/ip/address/remove", mapOf(".id" to id)).map { }
     }
 
     suspend fun execute(command: String, args: Map<String, String> = emptyMap()): Result<List<Map<String, String>>> {

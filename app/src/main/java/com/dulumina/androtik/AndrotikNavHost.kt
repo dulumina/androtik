@@ -2,7 +2,6 @@ package com.dulumina.androtik
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Wifi
@@ -14,8 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -27,6 +26,8 @@ import com.dulumina.androtik.ui.dashboard.DashboardScreen
 import com.dulumina.androtik.ui.dashboard.DashboardViewModel
 import com.dulumina.androtik.ui.interfaces.InterfacesScreen
 import com.dulumina.androtik.ui.interfaces.InterfacesViewModel
+import com.dulumina.androtik.ui.ipaddress.IpAddressScreen
+import com.dulumina.androtik.ui.ipaddress.IpAddressViewModel
 import com.dulumina.androtik.ui.login.LoginScreen
 import com.dulumina.androtik.ui.login.LoginViewModel
 
@@ -39,7 +40,7 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem("home", "Dashboard", Icons.Default.Home),
     BottomNavItem("interfaces", "Interfaces", Icons.Default.Wifi),
-    BottomNavItem("profile", "Settings", Icons.Default.Settings),
+    BottomNavItem("settings", "Settings", Icons.Default.Settings),
 )
 
 @Composable
@@ -66,13 +67,17 @@ fun AndrotikNavHost() {
             )
         }
         composable("main") {
-            MainScaffold(app = app)
+            MainScaffold(app = app, onLogout = {
+                rootNavController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                }
+            })
         }
     }
 }
 
 @Composable
-private fun MainScaffold(app: AndrotikApp) {
+private fun MainScaffold(app: AndrotikApp, onLogout: () -> Unit) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -113,6 +118,9 @@ private fun MainScaffold(app: AndrotikApp) {
                 )
                 DashboardScreen(
                     viewModel = dashboardViewModel,
+                    onNavigateToIpAddresses = {
+                        navController.navigate("ip_addresses")
+                    },
                     onNavigateToInterfaces = {
                         navController.navigate("interfaces") {
                             popUpTo("home") { saveState = true }
@@ -120,9 +128,16 @@ private fun MainScaffold(app: AndrotikApp) {
                             restoreState = true
                         }
                     },
-                    onLogout = {
-                        // TODO: navigate to login
-                    }
+                    onNavigateToIpRoutes = {
+                        navController.navigate("ip_routes")
+                    },
+                    onNavigateToDhcp = {
+                        navController.navigate("dhcp")
+                    },
+                    onNavigateToFirewall = {
+                        navController.navigate("firewall")
+                    },
+                    onLogout = onLogout
                 )
             }
             composable("interfaces") {
@@ -133,8 +148,23 @@ private fun MainScaffold(app: AndrotikApp) {
                 )
                 InterfacesScreen(viewModel = interfacesViewModel)
             }
-            composable("profile") {
-                // TODO: Profile management screen
+            composable("ip_addresses") {
+                val viewModel: IpAddressViewModel = viewModel(
+                    factory = IpAddressViewModel.Factory(app.container.sessionManager)
+                )
+                IpAddressScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+            }
+            composable("ip_routes") {
+                // TODO: IP Routes screen
+            }
+            composable("dhcp") {
+                // TODO: DHCP screen
+            }
+            composable("firewall") {
+                // TODO: Firewall screen
+            }
+            composable("settings") {
+                // TODO: Settings screen
             }
         }
     }

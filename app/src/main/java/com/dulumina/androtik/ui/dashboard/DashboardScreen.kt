@@ -1,5 +1,6 @@
 package com.dulumina.androtik.ui.dashboard
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,12 +14,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Airplay
+import androidx.compose.material.icons.filled.AltRoute
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -42,7 +47,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
+    onNavigateToIpAddresses: () -> Unit,
     onNavigateToInterfaces: () -> Unit,
+    onNavigateToIpRoutes: () -> Unit,
+    onNavigateToDhcp: () -> Unit,
+    onNavigateToFirewall: () -> Unit,
     onLogout: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -112,6 +121,103 @@ fun DashboardScreen(
 
                 SystemInfoCard(state.routerInfo)
                 ResourceCard(state.routerInfo)
+
+                Text(
+                    text = "Quick Actions",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                QuickActionCard(
+                    icon = Icons.Default.Wifi,
+                    title = "Interfaces",
+                    subtitle = "View interface status",
+                    onClick = onNavigateToInterfaces
+                )
+                QuickActionCard(
+                    icon = Icons.Default.Airplay,
+                    title = "IP Addresses",
+                    subtitle = "Manage IP addresses",
+                    onClick = onNavigateToIpAddresses
+                )
+                QuickActionCard(
+                    icon = Icons.Default.AltRoute,
+                    title = "IP Routes",
+                    subtitle = "View routing table",
+                    onClick = onNavigateToIpRoutes
+                )
+                QuickActionCard(
+                    icon = Icons.Default.Shield,
+                    title = "DHCP Server",
+                    subtitle = "Manage DHCP leases",
+                    onClick = onNavigateToDhcp
+                )
+                QuickActionCard(
+                    icon = Icons.Default.Security,
+                    title = "Firewall",
+                    subtitle = "Filter, NAT, Mangle rules",
+                    onClick = onNavigateToFirewall
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                QuickActionCard(
+                    icon = Icons.Default.Logout,
+                    title = "Disconnect & Logout",
+                    subtitle = "End current session",
+                    onClick = onLogout,
+                    destructive = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickActionCard(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    destructive: Boolean = false
+) {
+    val colors = if (destructive) {
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        )
+    } else {
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        colors = colors
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (destructive) MaterialTheme.colorScheme.error
+                       else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -126,11 +232,10 @@ private fun SystemInfoCard(info: com.dulumina.androtik.domain.model.RouterInfo) 
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(Modifier.width(8.dp))
                 Text("System Info", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             }
-            Spacer(modifier = Modifier.height(12.dp))
-
+            Spacer(Modifier.height(12.dp))
             InfoRow("Board", info.boardName)
             InfoRow("Version", info.version)
             InfoRow("Uptime", info.uptime)
@@ -148,11 +253,10 @@ private fun ResourceCard(info: com.dulumina.androtik.domain.model.RouterInfo) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Memory, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(Modifier.width(8.dp))
                 Text("Resources", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             }
-            Spacer(modifier = Modifier.height(12.dp))
-
+            Spacer(Modifier.height(12.dp))
             InfoRow("CPU Load", "${info.cpuLoad}%")
             InfoRow("Memory", "${info.freeMemory} / ${info.totalMemory}")
             InfoRow("Storage", "${info.freeHddSpace} / ${info.totalHddSpace}")
@@ -166,15 +270,9 @@ private fun InfoRow(label: String, value: String) {
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value.ifBlank { "-" },
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
-        )
+        Text(label, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value.ifBlank { "-" }, style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium)
     }
 }
