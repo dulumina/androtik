@@ -2,6 +2,7 @@ package com.dulumina.androtik.data.api
 
 import com.dulumina.androtik.domain.model.IpAddress
 import com.dulumina.androtik.domain.model.DhcpLease
+import com.dulumina.androtik.domain.model.FirewallRule
 import com.dulumina.androtik.domain.model.IpRoute
 import com.dulumina.androtik.domain.model.NetworkInterface
 import com.dulumina.androtik.domain.model.RouterInfo
@@ -137,6 +138,35 @@ class MikrotikClient(
 
     suspend fun removeDhcpLease(id: String): Result<Unit> {
         return connection.executeCommand("/ip/dhcp-server/lease/remove", mapOf(".id" to id)).map { }
+    }
+
+    suspend fun getFirewallRules(type: String): Result<List<FirewallRule>> {
+        val path = when (type) {
+            "nat" -> "/ip/firewall/nat/print"
+            "mangle" -> "/ip/firewall/mangle/print"
+            else -> "/ip/firewall/filter/print"
+        }
+        return connection.executeCommand(path).map { rows ->
+            rows.map { row ->
+                FirewallRule(
+                    id = row[".id"] ?: "",
+                    chain = row["chain"] ?: "",
+                    action = row["action"] ?: "",
+                    protocol = row["protocol"] ?: "",
+                    srcAddress = row["src-address"] ?: "",
+                    dstAddress = row["dst-address"] ?: "",
+                    srcPort = row["src-port"] ?: "",
+                    dstPort = row["dst-port"] ?: "",
+                    inInterface = row["in-interface"] ?: "",
+                    outInterface = row["out-interface"] ?: "",
+                    disabled = row["disabled"] == "true",
+                    dynamic = row["dynamic"] == "true",
+                    bytes = row["bytes"] ?: "",
+                    packets = row["packets"] ?: "",
+                    comment = row["comment"] ?: "",
+                )
+            }
+        }
     }
 
     suspend fun execute(command: String, args: Map<String, String> = emptyMap()): Result<List<Map<String, String>>> {

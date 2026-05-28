@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,6 +32,8 @@ import com.dulumina.androtik.ui.ipaddress.IpAddressScreen
 import com.dulumina.androtik.ui.ipaddress.IpAddressViewModel
 import com.dulumina.androtik.ui.dhcp.DhcpScreen
 import com.dulumina.androtik.ui.dhcp.DhcpViewModel
+import com.dulumina.androtik.ui.firewall.FirewallScreen
+import com.dulumina.androtik.ui.firewall.FirewallViewModel
 import com.dulumina.androtik.ui.iproutes.IpRoutesScreen
 import com.dulumina.androtik.ui.iproutes.IpRoutesViewModel
 import com.dulumina.androtik.ui.login.LoginScreen
@@ -72,6 +76,9 @@ fun AndrotikNavHost() {
         }
         composable("main") {
             MainScaffold(app = app, onLogout = {
+                kotlinx.coroutines.MainScope().launch {
+                    app.container.sessionManager.endSession()
+                }
                 rootNavController.navigate("login") {
                     popUpTo(0) { inclusive = true }
                 }
@@ -171,7 +178,10 @@ private fun MainScaffold(app: AndrotikApp, onLogout: () -> Unit) {
                 DhcpScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable("firewall") {
-                // TODO: Firewall screen
+                val viewModel: FirewallViewModel = viewModel(
+                    factory = FirewallViewModel.Factory(app.container.sessionManager)
+                )
+                FirewallScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable("settings") {
                 // TODO: Settings screen
