@@ -30,11 +30,11 @@ Track the progress of planned features below.
 - [x] Multi-router profile management (save, edit, delete)
 - [x] Dashboard — CPU, memory, uptime, board info
 - [x] Interface list — view status (up/down), IP, type
-- [ ] IP Address management — view, add, remove
-- [ ] IP Routes — view routing table
-- [ ] DHCP Server — view leases, add/remove static leases
-- [ ] Firewall — browse Filter, NAT, and Mangle rules
-- [ ] Logout & secure session handling
+- [x] IP Address management — view, add, remove
+- [x] IP Routes — view routing table
+- [x] DHCP Server — view leases, add/remove static leases
+- [x] Firewall — browse Filter, NAT, and Mangle rules
+- [x] Logout & secure session handling
 
 ### 🟠 Important (Medium Priority)
 - [ ] Simple Queue — view and manage bandwidth limits
