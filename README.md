@@ -24,12 +24,12 @@ Inspired by tools like Winbox and Androtik (desktop), this project aims to provi
 Track the progress of planned features below.
 
 ### 🔴 Core (High Priority)
-- [ ] MikroTik API connection (port 8728 plain)
-- [ ] MikroTik API-SSL connection (port 8729)
-- [ ] Login & authentication to RouterOS
-- [ ] Multi-router profile management (save, edit, delete)
-- [ ] Dashboard — CPU, memory, uptime, board info
-- [ ] Interface list — view status (up/down), IP, type
+- [x] MikroTik API connection (port 8728 plain)
+- [x] MikroTik API-SSL connection (port 8729)
+- [x] Login & authentication to RouterOS
+- [x] Multi-router profile management (save, edit, delete)
+- [x] Dashboard — CPU, memory, uptime, board info
+- [x] Interface list — view status (up/down), IP, type
 - [ ] IP Address management — view, add, remove
 - [ ] IP Routes — view routing table
 - [ ] DHCP Server — view leases, add/remove static leases
