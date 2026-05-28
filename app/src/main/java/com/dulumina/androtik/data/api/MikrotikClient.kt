@@ -1,6 +1,7 @@
 package com.dulumina.androtik.data.api
 
 import com.dulumina.androtik.domain.model.IpAddress
+import com.dulumina.androtik.domain.model.IpRoute
 import com.dulumina.androtik.domain.model.NetworkInterface
 import com.dulumina.androtik.domain.model.RouterInfo
 
@@ -84,6 +85,25 @@ class MikrotikClient(
 
     suspend fun removeIpAddress(id: String): Result<Unit> {
         return connection.executeCommand("/ip/address/remove", mapOf(".id" to id)).map { }
+    }
+
+    suspend fun getIpRoutes(): Result<List<IpRoute>> {
+        return connection.executeCommand("/ip/route/print").map { rows ->
+            rows.map { row ->
+                IpRoute(
+                    id = row[".id"] ?: "",
+                    dstAddress = row["dst-address"] ?: "",
+                    gateway = row["gateway"] ?: "",
+                    distance = row["distance"] ?: "",
+                    routingMark = row["routing-mark"] ?: "",
+                    interfaceName = row["interface"] ?: "",
+                    disabled = row["disabled"] == "true",
+                    dynamic = row["dynamic"] == "true",
+                    active = row["active"] == "true",
+                    comment = row["comment"] ?: "",
+                )
+            }
+        }
     }
 
     suspend fun execute(command: String, args: Map<String, String> = emptyMap()): Result<List<Map<String, String>>> {

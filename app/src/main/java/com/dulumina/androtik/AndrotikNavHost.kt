@@ -28,6 +28,8 @@ import com.dulumina.androtik.ui.interfaces.InterfacesScreen
 import com.dulumina.androtik.ui.interfaces.InterfacesViewModel
 import com.dulumina.androtik.ui.ipaddress.IpAddressScreen
 import com.dulumina.androtik.ui.ipaddress.IpAddressViewModel
+import com.dulumina.androtik.ui.iproutes.IpRoutesScreen
+import com.dulumina.androtik.ui.iproutes.IpRoutesViewModel
 import com.dulumina.androtik.ui.login.LoginScreen
 import com.dulumina.androtik.ui.login.LoginViewModel
 
@@ -155,7 +157,10 @@ private fun MainScaffold(app: AndrotikApp, onLogout: () -> Unit) {
                 IpAddressScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable("ip_routes") {
-                // TODO: IP Routes screen
+                val viewModel: IpRoutesViewModel = viewModel(
+                    factory = IpRoutesViewModel.Factory(app.container.sessionManager)
+                )
+                IpRoutesScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable("dhcp") {
                 // TODO: DHCP screen
