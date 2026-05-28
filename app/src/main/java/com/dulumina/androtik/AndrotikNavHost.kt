@@ -25,6 +25,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dulumina.androtik.ui.dashboard.DashboardScreen
 import com.dulumina.androtik.ui.dashboard.DashboardViewModel
+import com.dulumina.androtik.ui.interfaces.InterfacesScreen
+import com.dulumina.androtik.ui.interfaces.InterfacesViewModel
 import com.dulumina.androtik.ui.login.LoginScreen
 import com.dulumina.androtik.ui.login.LoginViewModel
 
@@ -124,7 +126,12 @@ private fun MainScaffold(app: AndrotikApp) {
                 )
             }
             composable("interfaces") {
-                // TODO: Interface list screen
+                val interfacesViewModel: InterfacesViewModel = viewModel(
+                    factory = InterfacesViewModel.Factory(
+                        app.container.sessionManager
+                    )
+                )
+                InterfacesScreen(viewModel = interfacesViewModel)
             }
             composable("profile") {
                 // TODO: Profile management screen
